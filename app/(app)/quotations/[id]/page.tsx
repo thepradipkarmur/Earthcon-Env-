@@ -1,3 +1,5 @@
+import { getStaffOptions } from "@/lib/data";
+import { AssignControl } from "@/components/assign-control";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button, Card, DL, LinkButton, PageHeader, StatusBadge, Table, Td } from "@/components/ui";
@@ -13,9 +15,10 @@ export default async function QuotationView({ params }: { params: Promise<{ id: 
   const supabase = await createClient();
   const { data: q } = await supabase.from("quotations").select("*,clients(id,name,client_code),client_contacts(name,designation)").eq("id", id).single() as { data: any };
   if (!q) notFound();
-  const [{ data: items }, { data: pos }] = await Promise.all([
+  const [{ data: items }, { data: pos }, staff] = await Promise.all([
     supabase.from("quotation_items").select("*").eq("quotation_id", id).order("line_no"),
     supabase.from("purchase_orders").select("id,po_number,po_value,status").eq("quotation_id", id),
+    getStaffOptions(),
   ]);
   const edit = can(profile, "accounts");
   const statusBtn = (s: string, label: string, variant: "primary" | "secondary" | "danger" = "secondary") => (
@@ -34,6 +37,7 @@ export default async function QuotationView({ params }: { params: Promise<{ id: 
           {edit && q.status !== "revised" ? <form action={reviseQuotation}><input type="hidden" name="id" value={id} /><Button variant="secondary">Revise</Button></form> : null}
           {edit && q.status === "accepted" ? <LinkButton href={`/purchase-orders/new?quotation=${id}`} icon="plus">Record PO</LinkButton> : null}
         </>} />
+      <Card><AssignControl kind="quotation" id={id} current={q.assigned_to} staff={staff} label="Assigned for review / follow-up" disabled={!edit} /></Card>
       <Card title="Details">
         <DL items={[
           ["Client", <Link key="c" className="text-teal-800 hover:underline" href={`/clients/${q.clients?.id}`}>{q.clients?.name}</Link>],

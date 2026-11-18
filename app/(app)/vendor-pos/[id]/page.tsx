@@ -1,10 +1,11 @@
+import { AssignControl } from "@/components/assign-control";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { ComboSelect } from "@/components/combo-select";
 import { Button, Card, DL, Field, Input, LinkButton, Notice, PageHeader, StatusBadge, Table, Td } from "@/components/ui";
 import { can, getProfile } from "@/lib/auth";
-import { getLookups } from "@/lib/data";
+import { getLookups, getStaffOptions } from "@/lib/data";
 import { amountInWords, fmtDate, fmtDateTime, inr, isoDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { addVendorPayment, deleteVendorPayment, saveReceipt, setVendorPOStatus } from "../actions";
@@ -16,11 +17,12 @@ export default async function VendorPOView({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { data: po } = await supabase.from("vendor_pos").select("*,vendors(id,name,email,contact_name,state),vendor_quotations(id,vq_no)").eq("id", id).single() as { data: any };
   if (!po) notFound();
-  const [{ data: items }, { data: pays }, lk, { data: settings }] = await Promise.all([
+  const [{ data: items }, { data: pays }, lk, { data: settings }, staff] = await Promise.all([
     supabase.from("vendor_po_items").select("*").eq("vendor_po_id", id).order("line_no"),
     supabase.from("vendor_payments").select("*").eq("vendor_po_id", id).order("payment_date"),
     getLookups("payment_mode"),
     supabase.from("app_settings").select("lab_name").single(),
+    getStaffOptions(),
   ]);
   const edit = can(profile, "accounts", "tech_manager");
   const live = !["draft", "cancelled", "closed"].includes(po.status);
@@ -44,6 +46,7 @@ export default async function VendorPOView({ params }: { params: Promise<{ id: s
           {edit && ["draft", "sent", "acknowledged"].includes(po.status) && Number(po.amount_paid) === 0 ? btn("cancelled", "Cancel", "danger") : null}
         </>} />
       {mail ? null : <Notice>Add an email address on the vendor to use “Email vendor”. Download the PO PDF and attach it to your email.</Notice>}
+      <Card><AssignControl kind="vendor_po" id={id} current={po.assigned_to} staff={staff} label="Assigned for approval / follow-up" disabled={!edit} /></Card>
       <Card title="Details">
         <DL items={[["Vendor", <Link key="v" href={`/vendors/${po.vendors?.id}`} className="text-teal-800 hover:underline">{po.vendors?.name}</Link>],
           ["Vendor quotation", po.vendor_quotations ? <Link key="q" href={`/vendor-quotations/${po.vendor_quotations.id}`} className="text-teal-800 hover:underline">{po.vendor_quotations.vq_no}</Link> : null],

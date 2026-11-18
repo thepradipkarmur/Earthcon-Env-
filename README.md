@@ -28,6 +28,21 @@ noise, soil, sludge and hazardous waste).
 | **Vendor quotations** | Record quotations received (their ref, items, units, GST, attach their PDF) → review → accept / reject → convert to a purchase order |
 | **Purchase orders** | `EL/VPO/2026-27/0001`; CGST+SGST or IGST from the vendor's state; branded PO PDF; “Email vendor” (pre-filled email); delivery tracking by received quantity (auto partially received → received); vendor payments + TDS; payables on the dashboard |
 
+### Notifications
+
+Bell in the top-right with an unread count that updates live (Supabase Realtime; 30-second fallback refresh).
+Notifications are created by database triggers, so they fire however a record changes:
+
+| Event | Who is notified |
+|-------|-----------------|
+| Task assigned / reassigned · task done | Assignee · task creator |
+| Report assigned for review (“Reviewer / approver”) · marked checked · approved / cancelled | Reviewer · reviewer or Technical Managers · preparer |
+| Sample: all results entered | Technical Managers (“ready for report”) |
+| Invoice / quotation / vendor PO assigned · invoice paid · quotation accepted · vendor PO fully received | Assignee · creator (and assignee) |
+| New staff sign-up | Admins |
+
+Nobody is notified about their own actions. Full list at **/notifications**.
+
 ### Custom dropdown values
 
 Every list-based dropdown ends with **“＋ Add new…”**. A value added there is saved to the database and offered

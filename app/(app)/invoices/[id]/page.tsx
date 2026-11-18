@@ -1,10 +1,11 @@
+import { AssignControl } from "@/components/assign-control";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ComboSelect } from "@/components/combo-select";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Button, Card, DL, Field, Input, LinkButton, PageHeader, StatusBadge, Table, Td } from "@/components/ui";
 import { can, getProfile } from "@/lib/auth";
-import { getLookups } from "@/lib/data";
+import { getLookups, getStaffOptions } from "@/lib/data";
 import { amountInWords, fmtDate, inr, isoDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { addPayment, deletePayment, setInvoiceStatus } from "../actions";
@@ -16,10 +17,11 @@ export default async function InvoiceView({ params }: { params: Promise<{ id: st
   const supabase = await createClient();
   const { data: inv } = await supabase.from("invoices").select("*,clients(id,name,gstin),purchase_orders(id,po_number)").eq("id", id).single() as { data: any };
   if (!inv) notFound();
-  const [{ data: items }, { data: pays }, lookups] = await Promise.all([
+  const [{ data: items }, { data: pays }, lookups, staff] = await Promise.all([
     supabase.from("invoice_items").select("*,samples(id,sample_no)").eq("invoice_id", id).order("line_no"),
     supabase.from("payments").select("*").eq("invoice_id", id).order("payment_date"),
     getLookups("payment_mode"),
+    getStaffOptions(),
   ]);
   const acc = can(profile, "accounts");
   const statusBtn = (s: string, label: string, v: "primary" | "secondary" | "danger" = "secondary") => (
@@ -33,6 +35,7 @@ export default async function InvoiceView({ params }: { params: Promise<{ id: st
           {acc && inv.status === "draft" ? statusBtn("issued", "Issue invoice", "primary") : null}
           {acc && ["draft", "issued"].includes(inv.status) && Number(inv.amount_paid) === 0 ? statusBtn("cancelled", "Cancel", "danger") : null}
         </>} />
+      <Card><AssignControl kind="invoice" id={id} current={inv.assigned_to} staff={staff} label="Assigned for review / follow-up" disabled={!acc} /></Card>
       <Card title="Details">
         <DL items={[["Client", <Link key="c" className="text-teal-800 hover:underline" href={`/clients/${inv.clients?.id}`}>{inv.clients?.name}</Link>], ["Client GSTIN", inv.clients?.gstin],
           ["PO", inv.purchase_orders ? <Link key="p" className="text-teal-800 hover:underline" href={`/purchase-orders/${inv.purchase_orders.id}`}>{inv.purchase_orders.po_number}</Link> : null],

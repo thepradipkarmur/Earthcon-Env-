@@ -1,3 +1,5 @@
+import { getStaffOptions } from "@/lib/data";
+import { AssignControl } from "@/components/assign-control";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm, SubmitButton } from "@/components/action-form";
@@ -15,6 +17,7 @@ export default async function ReportView({ params }: { params: Promise<{ id: str
   const { data: r } = await supabase.from("reports").select(`*,samples(id,sample_no,sampling_point,collected_at,received_at,clients(name),sample_types(name),standards(name)),
     preparer:profiles!reports_prepared_by_fkey(full_name),checker:profiles!reports_checked_by_fkey(full_name),approver:profiles!reports_approved_by_fkey(full_name)`).eq("id", id).single() as { data: any };
   if (!r) notFound();
+  const staff = await getStaffOptions(["tech_manager", "analyst"]);
   const { data: tests } = await supabase.from("sample_tests").select("*,parameters(name,decimals),test_methods(code)").eq("sample_id", r.sample_id).order("sort_order");
   const pending = (tests ?? []).filter((t) => t.status === "pending").length;
   const exceed = (tests ?? []).filter((t) => t.compliance === "exceeds");
@@ -33,6 +36,8 @@ export default async function ReportView({ params }: { params: Promise<{ id: str
             <form action={cancelAndRevise}><input type="hidden" name="id" value={id} /><Button variant="danger">Cancel &amp; revise</Button></form>
           ) : null}
         </>} />
+      <Card><AssignControl kind="report" id={id} current={r.reviewer_id} staff={staff} label="Reviewer / approver"
+        disabled={r.is_locked || !can(profile, "analyst", "tech_manager")} /></Card>
       {pending ? <Notice>{pending} parameter(s) still have no result. All results are required before approval.</Notice> : null}
       {r.status === "cancelled" ? <Notice tone="red">This report was cancelled. A revised report supersedes it.</Notice> : null}
       <Card title="Sample">

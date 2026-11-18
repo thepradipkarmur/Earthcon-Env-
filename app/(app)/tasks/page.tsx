@@ -1,3 +1,5 @@
+import { getStaffOptions } from "@/lib/data";
+import { AssignControl } from "@/components/assign-control";
 import Link from "next/link";
 import { Button, LinkButton, PageHeader, Select, StatusBadge, Table, Td } from "@/components/ui";
 import { can, getProfile } from "@/lib/auth";
@@ -18,7 +20,7 @@ export default async function Tasks({ searchParams }: { searchParams: Promise<{ 
   if (status === "active") q = q.in("status", ["open", "in_progress"]); else if (status !== "all") q = q.eq("status", status);
   if (sp.mine) q = q.eq("assigned_to", profile.id);
   if (sp.type) q = q.eq("task_type", sp.type);
-  const { data, error } = await q;
+  const [{ data, error }, staff] = await Promise.all([q, getStaffOptions()]);
   const today = isoDate();
   const manager = can(profile, "accounts", "tech_manager");
 
@@ -42,7 +44,7 @@ export default async function Tasks({ searchParams }: { searchParams: Promise<{ 
                 {t.description ? <div className="mt-1 max-w-md text-xs text-slate-500">{t.description}</div> : null}</Td>
               <Td>{t.task_type.replace("_", " ")}</Td>
               <Td>{t.clients?.name ?? "—"}<div className="text-xs text-slate-500">{t.client_sites?.name}</div></Td>
-              <Td>{t.profiles?.full_name ?? <span className="text-slate-400">Unassigned</span>}</Td>
+              <Td>{manager && !["done", "cancelled"].includes(t.status) ? <AssignControl kind="task" id={t.id} current={t.assigned_to} staff={staff} label="" /> : (t.profiles?.full_name ?? <span className="text-slate-400">Unassigned</span>)}</Td>
               <Td className={t.due_date && t.due_date < today && !["done", "cancelled"].includes(t.status) ? "font-medium text-red-600" : ""}>{fmtDate(t.due_date)}</Td>
               <Td><StatusBadge status={t.priority} /></Td>
               <Td><StatusBadge status={t.status} /></Td>
