@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { ComboSelect } from "@/components/combo-select";
 import { Button, Input, Notice, PageHeader, Select, Table } from "@/components/ui";
 import { getProfile } from "@/lib/auth";
 import { ROLE_LABELS } from "@/lib/constants";
@@ -40,7 +41,7 @@ export default async function Users() {
                 <Input name="full_name" defaultValue={u.full_name} />
                 <span className="truncate text-slate-600">{u.email}</span>
                 <Select name="role" defaultValue={u.role} options={Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label }))} />
-                <Select name="designation" defaultValue={u.designation ?? ""} options={lookups.designation} placeholder="—" />
+                <ComboSelect name="designation" defaultValue={u.designation ?? ""} options={lookups.designation} category="designation" placeholder="—" />
                 <Input name="phone" defaultValue={u.phone ?? ""} />
                 <input type="checkbox" name="is_active" defaultChecked={u.is_active} disabled={u.id === me.id} />
                 {u.id === me.id ? <input type="hidden" name="is_active" value="on" /> : null}

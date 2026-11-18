@@ -1,5 +1,6 @@
 import { ActionForm, SubmitButton } from "@/components/action-form";
-import { Card, Field, Input, Select, Textarea } from "@/components/ui";
+import { Card, Field, Input, Textarea } from "@/components/ui";
+import { ComboSelect } from "@/components/combo-select";
 import { saveClient } from "./actions";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -11,8 +12,8 @@ export function ClientForm({ client, lookups }: { client?: any; lookups: Record<
       <Card title="Company">
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Company / Industry name" required className="md:col-span-2"><Input name="name" defaultValue={c.name} required /></Field>
-          <Field label="Industry sector"><Select name="industry_sector" defaultValue={c.industry_sector ?? ""} options={lookups.industry_sector} placeholder="Select…" /></Field>
-          <Field label="GPCB category"><Select name="pcb_category" defaultValue={c.pcb_category ?? ""} options={lookups.pcb_category} placeholder="Select…" /></Field>
+          <Field label="Industry sector"><ComboSelect name="industry_sector" defaultValue={c.industry_sector ?? ""} options={lookups.industry_sector} category="industry_sector" placeholder="Select…" /></Field>
+          <Field label="GPCB category"><ComboSelect name="pcb_category" defaultValue={c.pcb_category ?? ""} options={lookups.pcb_category} category="pcb_category" placeholder="Select…" /></Field>
           <Field label="GSTIN"><Input name="gstin" defaultValue={c.gstin} maxLength={15} placeholder="24ABCDE1234F1Z5" /></Field>
           <Field label="PAN"><Input name="pan" defaultValue={c.pan} maxLength={10} /></Field>
         </div>
@@ -21,8 +22,8 @@ export function ClientForm({ client, lookups }: { client?: any; lookups: Record<
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Address" className="md:col-span-3"><Textarea name="address" defaultValue={c.address} rows={2} /></Field>
           <Field label="City / Village"><Input name="city" defaultValue={c.city} /></Field>
-          <Field label="District"><Select name="district" defaultValue={c.district ?? ""} options={lookups.district} placeholder="Select…" /></Field>
-          <Field label="GIDC / Industrial estate"><Select name="gidc_estate" defaultValue={c.gidc_estate ?? ""} options={lookups.gidc_estate} placeholder="Select…" /></Field>
+          <Field label="District"><ComboSelect name="district" defaultValue={c.district ?? ""} options={lookups.district} category="district" placeholder="Select…" /></Field>
+          <Field label="GIDC / Industrial estate"><ComboSelect name="gidc_estate" defaultValue={c.gidc_estate ?? ""} options={lookups.gidc_estate} category="gidc_estate" placeholder="Select…" /></Field>
           <Field label="State"><Input name="state" defaultValue={c.state ?? "Gujarat"} /></Field>
           <Field label="PIN code"><Input name="pincode" defaultValue={c.pincode} maxLength={6} /></Field>
         </div>
@@ -32,7 +33,7 @@ export function ClientForm({ client, lookups }: { client?: any; lookups: Record<
           <Field label="CCA / Consent no."><Input name="cca_number" defaultValue={c.cca_number} /></Field>
           <Field label="CCA valid up to"><Input type="date" name="cca_valid_upto" defaultValue={c.cca_valid_upto ?? ""} /></Field>
           <Field label="XGN industry ID"><Input name="xgn_id" defaultValue={c.xgn_id} /></Field>
-          <Field label="Effluent discharge route"><Select name="effluent_discharge_route" defaultValue={c.effluent_discharge_route ?? ""} options={lookups.discharge_route} placeholder="Select…" /></Field>
+          <Field label="Effluent discharge route"><ComboSelect name="effluent_discharge_route" defaultValue={c.effluent_discharge_route ?? ""} options={lookups.discharge_route} category="discharge_route" placeholder="Select…" /></Field>
         </div>
       </Card>
       {!c.id ? (

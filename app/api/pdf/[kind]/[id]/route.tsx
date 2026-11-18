@@ -1,5 +1,5 @@
 import { renderToBuffer } from "@react-pdf/renderer";
-import { InvoicePdf, QuotationPdf, ReportPdf } from "@/lib/pdf/documents";
+import { InvoicePdf, QuotationPdf, ReportPdf, VendorPoPdf } from "@/lib/pdf/documents";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ kind: string; id: string }> }) {
@@ -31,6 +31,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ kind: s
     const { data: items } = await supabase.from("invoice_items").select("*").eq("invoice_id", id).order("line_no");
     doc = <InvoicePdf inv={inv} items={items ?? []} settings={settings} />;
     name = inv.invoice_no;
+  } else if (kind === "vendor-po") {
+    const { data: po } = await supabase.from("vendor_pos").select("*,vendors(*),vendor_quotations(vq_no,vendor_ref)").eq("id", id).single();
+    if (!po) return new Response("Not found", { status: 404 });
+    const { data: items } = await supabase.from("vendor_po_items").select("*").eq("vendor_po_id", id).order("line_no");
+    doc = <VendorPoPdf po={po} items={items ?? []} settings={settings} />;
+    name = po.po_no;
   } else {
     return new Response("Unknown document", { status: 400 });
   }

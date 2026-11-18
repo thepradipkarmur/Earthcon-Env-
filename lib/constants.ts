@@ -29,18 +29,25 @@ export const STATUS_TONE: Record<string, "gray" | "blue" | "amber" | "green" | "
   partially_paid: "amber", paid: "green",
   complies: "green", exceeds: "red", na: "gray",
   low: "gray", normal: "blue", high: "amber", urgent: "red",
+  received: "blue", under_review: "amber", acknowledged: "blue", partially_received: "amber", closed: "gray",
 };
 
 export const NAV = [
   { href: "/", label: "Dashboard", icon: "home" },
   { href: "/clients", label: "Clients", icon: "building", step: 1 },
   { href: "/quotations", label: "Quotations", icon: "file", step: 2 },
-  { href: "/purchase-orders", label: "Purchase Orders", icon: "clipboard", step: 3 },
+  { href: "/purchase-orders", label: "Client POs", icon: "clipboard", step: 3 },
   { href: "/tasks", label: "Tasks", icon: "check", step: 4 },
   { href: "/samples", label: "Samples", icon: "flask", step: 5 },
   { href: "/testing", label: "Lab Testing", icon: "beaker", step: 6 },
   { href: "/reports", label: "Reports", icon: "award", step: 7 },
   { href: "/invoices", label: "Invoices & Payments", icon: "rupee", step: 8 },
+] as const;
+
+export const PURCHASE_NAV = [
+  { href: "/vendors", label: "Vendors", icon: "truck" },
+  { href: "/vendor-quotations", label: "Vendor Quotations", icon: "inbox" },
+  { href: "/vendor-pos", label: "Purchase Orders", icon: "cart" },
 ] as const;
 
 export const ADMIN_NAV = [

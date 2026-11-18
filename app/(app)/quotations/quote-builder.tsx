@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ComboSelect } from "@/components/combo-select";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Button, Card, Field, Input, Select, Textarea } from "@/components/ui";
 import { MATRIX_LABELS } from "@/lib/constants";
@@ -15,9 +17,9 @@ type Item = { key: number; item_type: string; sample_type_id: string | null; par
 
 let k = 1;
 
-export function QuoteBuilder({ quotation, items: initial, clients, contacts, sampleTypes, params, frequencies, defaultTerms, defaultGst, defaultClient }: {
+export function QuoteBuilder({ quotation, items: initial, clients, contacts, sampleTypes, params, frequencies, serviceItems, defaultTerms, defaultGst, defaultClient }: {
   quotation?: any; items?: any[]; clients: Opt[]; contacts: (Opt & { client_id: string })[]; sampleTypes: SampleType[]; params: Param[];
-  frequencies: string[]; defaultTerms: string; defaultGst: number; defaultClient?: string;
+  frequencies: string[]; serviceItems: string[]; defaultTerms: string; defaultGst: number; defaultClient?: string;
 }) {
   const q = quotation ?? {};
   const [clientId, setClientId] = useState<string>(q.client_id ?? defaultClient ?? "");
@@ -62,6 +64,7 @@ export function QuoteBuilder({ quotation, items: initial, clients, contacts, sam
         <div className="grid gap-4 md:grid-cols-4">
           <Field label="Client" required className="md:col-span-2">
             <Select name="client_id" value={clientId} onChange={(e) => setClientId(e.target.value)} options={clients} placeholder="Select client…" required />
+            <Link href="/clients/new" className="mt-1 inline-block text-xs text-teal-700 hover:underline">+ New client</Link>
           </Field>
           <Field label="Kind attention"><Select name="contact_id" defaultValue={q.contact_id ?? ""} options={contacts.filter((c) => c.client_id === clientId)} placeholder="—" /></Field>
           <Field label="Quote date"><Input type="date" name="quote_date" defaultValue={q.quote_date ?? isoDate()} /></Field>
@@ -73,7 +76,7 @@ export function QuoteBuilder({ quotation, items: initial, clients, contacts, sam
       <Card title="Add services & parameters">
         <div className="grid gap-4 md:grid-cols-4">
           <Field label="Sample type"><Select value={stId} onChange={(e) => { setStId(e.target.value); setPicked(new Set()); }} options={sampleTypes.map((s) => ({ value: s.id, label: `${s.name} (${s.code})` }))} /></Field>
-          <Field label="Frequency"><Select value={freq} onChange={(e) => setFreq(e.target.value)} options={frequencies} /></Field>
+          <Field label="Frequency"><ComboSelect value={freq} onChange={setFreq} options={frequencies} category="frequency" /></Field>
           <Field label="No. of samples / visits"><Input type="number" min={1} value={qty} onChange={(e) => setQty(Number(e.target.value))} /></Field>
           <div className="flex items-end gap-2">
             <Button type="button" onClick={addPicked} disabled={!picked.size}>Add as lines</Button>
@@ -96,10 +99,12 @@ export function QuoteBuilder({ quotation, items: initial, clients, contacts, sam
             ))}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            {["Sampling charges", "Transportation charges", "Stack monitoring – per stack", "Ambient air monitoring – per location (24 h)", "Noise monitoring – per location", "Report preparation"].map((s) => (
+            {serviceItems.map((s) => (
               <Button key={s} type="button" variant="ghost" className="border border-dashed border-slate-300 text-xs"
                 onClick={() => setItems([...items, { key: k++, item_type: "service", sample_type_id: null, parameter_id: null, description: s, frequency: freq, quantity: qty, rate: 0 }])}>+ {s}</Button>
             ))}
+            <div className="w-64"><ComboSelect value="" options={[]} category="service_item" placeholder="Save a new service type…"
+              onChange={(v) => v && setItems([...items, { key: k++, item_type: "service", sample_type_id: null, parameter_id: null, description: v, frequency: freq, quantity: qty, rate: 0 }])} /></div>
             <Button type="button" variant="ghost" className="border border-dashed border-slate-300 text-xs"
               onClick={() => setItems([...items, { key: k++, item_type: "service", sample_type_id: null, parameter_id: null, description: "", frequency: freq, quantity: 1, rate: 0 }])}>+ Custom line</Button>
           </div>
@@ -115,7 +120,7 @@ export function QuoteBuilder({ quotation, items: initial, clients, contacts, sam
                 <tr key={i.key} className="border-t border-slate-100">
                   <td className="p-2 text-slate-400">{n + 1}</td>
                   <td className="p-2"><Input value={i.description} onChange={(e) => update(i.key, { description: e.target.value })} /></td>
-                  <td className="p-2"><Select value={i.frequency ?? ""} onChange={(e) => update(i.key, { frequency: e.target.value })} options={frequencies} placeholder="—" /></td>
+                  <td className="p-2"><ComboSelect value={i.frequency ?? ""} onChange={(v) => update(i.key, { frequency: v })} options={frequencies} category="frequency" placeholder="—" /></td>
                   <td className="p-2"><Input type="number" min={0} step="any" value={i.quantity} onChange={(e) => update(i.key, { quantity: Number(e.target.value) })} /></td>
                   <td className="p-2"><Input type="number" min={0} step="any" value={i.rate} onChange={(e) => update(i.key, { rate: Number(e.target.value) })} /></td>
                   <td className="p-2 text-right font-medium">{inr((Number(i.quantity) || 0) * (Number(i.rate) || 0), false)}</td>

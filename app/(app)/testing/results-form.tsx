@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { ComboSelect } from "@/components/combo-select";
 import { ActionForm, SubmitButton } from "@/components/action-form";
-import { Badge, Input, Select } from "@/components/ui";
+import { Badge, Input } from "@/components/ui";
 import { saveResults } from "./actions";
 import { isoDate } from "@/lib/format";
 
@@ -50,8 +51,8 @@ export function ResultsForm({ sampleId, tests, methods, instruments, canReview, 
                   <td className="p-2"><Input value={r.result_text} disabled={locked} onChange={(e) => set(i, { result_text: e.target.value })} placeholder="optional" /></td>
                   <td className="p-2 text-xs text-slate-600">{r.limit_text ?? "—"}</td>
                   <td className="p-2">{c !== "na" ? <Badge tone={c === "exceeds" ? "red" : "green"}>{c}</Badge> : null}</td>
-                  <td className="p-2"><Select value={r.method_id} disabled={locked} onChange={(e) => set(i, { method_id: e.target.value })} options={methods} placeholder="—" /></td>
-                  <td className="p-2"><Select value={r.instrument_id} disabled={locked} onChange={(e) => set(i, { instrument_id: e.target.value })} options={instruments} placeholder="—" /></td>
+                  <td className="p-2"><ComboSelect value={r.method_id} disabled={locked} onChange={(v) => set(i, { method_id: v })} options={methods} kind="method" placeholder="—" /></td>
+                  <td className="p-2"><ComboSelect value={r.instrument_id} disabled={locked} onChange={(v) => set(i, { instrument_id: v })} options={instruments} kind="instrument" placeholder="—" /></td>
                   <td className="p-2"><Input type="date" value={r.analysis_start} disabled={locked} onChange={(e) => set(i, { analysis_start: e.target.value })} /></td>
                   <td className="p-2"><Input type="date" value={r.analysis_end} disabled={locked} onChange={(e) => set(i, { analysis_end: e.target.value })} /></td>
                   <td className="p-2"><Input value={r.remarks} disabled={locked} onChange={(e) => set(i, { remarks: e.target.value })} /></td>

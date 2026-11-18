@@ -20,6 +20,20 @@ noise, soil, sludge and hazardous waste).
 | 7 | **Reports** | Draft → Checked (analyst) → Approved (Technical Manager, locks results) → Issued; cancel & revise creates `-R1`; branded PDF with DRAFT watermark until approved |
 | 8 | **Invoices & payments** | GST tax invoice (SAC 998346), CGST+SGST vs. IGST by place of supply, lines from quotation or uninvoiced samples, part payments + TDS, ageing dashboard |
 
+### Purchasing (vendors)
+
+| Module | What it does |
+|--------|--------------|
+| **Vendors** | Suppliers, service providers, sub-contract labs: category, GSTIN/PAN, MSME no., address/state, contact, payment terms, bank details, rating. A company can be both a client and a vendor (linked records; “Register as vendor” on the client page). |
+| **Vendor quotations** | Record quotations received (their ref, items, units, GST, attach their PDF) → review → accept / reject → convert to a purchase order |
+| **Purchase orders** | `EL/VPO/2026-27/0001`; CGST+SGST or IGST from the vendor's state; branded PO PDF; “Email vendor” (pre-filled email); delivery tracking by received quantity (auto partially received → received); vendor payments + TDS; payables on the dashboard |
+
+### Custom dropdown values
+
+Every list-based dropdown ends with **“＋ Add new…”**. A value added there is saved to the database and offered
+everywhere from then on (editable under **Master data → Dropdown lists**). Test methods and instruments can be
+added the same way while entering results. Workflow statuses (draft / approved …) are fixed by design.
+
 Also: dashboard, master data (parameters & rates, methods, standards & limits, client-specific CCA limits,
 sample types, instruments with calibration due dates, all dropdown lists), users & roles, settings, and an
 audit log of every change (for NABL / CPCB surveillance).
@@ -50,6 +64,9 @@ sign-ups are Viewers until an Admin assigns a role under **Users & Roles**.
 | Sample | `EL/<type code>/2026-27/00001` e.g. `EL/WW/…`, `EL/AA/…`, `EL/SE/…` |
 | Test report | `EL/TR/2026-27/00001` |
 | Invoice | `EL/26-27/0001` (GST invoice serial ≤ 16 characters) |
+| Vendor | `VN-0001` |
+| Vendor quotation (received) | `EL/VQ/2026-27/0001` |
+| Purchase order to vendor | `EL/VPO/2026-27/0001` |
 
 The `EL` prefix is editable in **Settings**.
 

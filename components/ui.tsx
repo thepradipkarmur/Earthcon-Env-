@@ -73,7 +73,7 @@ export function Select({ options, placeholder, ...props }: ComponentProps<"selec
   );
 }
 
-export function Field({ label, hint, children, className, required }: { label: string; hint?: string; children: ReactNode; className?: string; required?: boolean }) {
+export function Field({ label, hint, children, className, required }: { label: string; hint?: ReactNode; children: ReactNode; className?: string; required?: boolean }) {
   return (
     <label className={cx("block", className)}>
       <span className="mb-1 block text-xs font-medium text-slate-600">

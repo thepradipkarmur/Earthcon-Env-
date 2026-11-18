@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { ComboSelect } from "@/components/combo-select";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Button, Card, Field, Input, Select, Textarea } from "@/components/ui";
 import { inr, isoDate } from "@/lib/format";
@@ -33,9 +35,9 @@ export function InvoiceForm({ clients, pos, samples, quoteLines, states, default
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
       <Card title="Invoice">
         <div className="grid gap-4 md:grid-cols-4">
-          <Field label="Client" required className="md:col-span-2"><Select name="client_id" value={clientId} onChange={(e) => { setClientId(e.target.value); setPoId(""); }} options={clients} placeholder="Select…" required /></Field>
+          <Field label="Client" required className="md:col-span-2" hint={<Link href="/clients/new" className="text-teal-700 hover:underline">+ New client</Link>}><Select name="client_id" value={clientId} onChange={(e) => { setClientId(e.target.value); setPoId(""); }} options={clients} placeholder="Select…" required /></Field>
           <Field label="Purchase order"><Select name="po_id" value={poId} onChange={(e) => setPoId(e.target.value)} options={pos.filter((p) => p.client_id === clientId).map((p) => ({ value: p.id, label: `${p.po_number} (${inr(p.po_value)})` }))} placeholder="—" /></Field>
-          <Field label="Place of supply" hint={interstate ? "Inter-state → IGST" : "Intra-state → CGST + SGST"}><Select name="place_of_supply" value={pos_} onChange={(e) => setPos(e.target.value)} options={states} /></Field>
+          <Field label="Place of supply" hint={interstate ? "Inter-state → IGST" : "Intra-state → CGST + SGST"}><ComboSelect name="place_of_supply" value={pos_} onChange={setPos} options={states} category="state" /></Field>
           <Field label="Invoice date"><Input type="date" name="invoice_date" defaultValue={today} /></Field>
           <Field label="Due date"><Input type="date" name="due_date" defaultValue={isoDate(30)} /></Field>
           <Field label="GST %"><Input type="number" step="any" name="gst_pct" value={gst} onChange={(e) => setGst(Number(e.target.value))} /></Field>

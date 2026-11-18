@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata = { title: "Audit log" };
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const TABLES = ["clients", "quotations", "purchase_orders", "tasks", "samples", "sample_tests", "reports", "invoices", "payments", "parameters", "standards", "standard_limits", "instruments", "profiles"];
+const TABLES = ["clients", "quotations", "purchase_orders", "tasks", "samples", "sample_tests", "reports", "invoices", "payments", "parameters", "standards", "standard_limits", "instruments", "profiles", "vendors", "vendor_quotations", "vendor_pos", "vendor_po_items", "vendor_payments", "lookups"];
 
 function diff(o: any, n: any) {
   if (!o || !n) return null;

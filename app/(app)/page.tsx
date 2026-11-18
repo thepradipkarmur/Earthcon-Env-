@@ -5,6 +5,7 @@ import { daysSince, fmtDate, inr, isoDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Dashboard" };
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default async function Dashboard() {
   const profile = await getProfile();
@@ -13,7 +14,7 @@ export default async function Dashboard() {
   const in30 = isoDate(30);
   const in60 = isoDate(60);
 
-  const [clients, quotes, pos, tasks, myTasks, samples, reports, invoices, instruments, cca] = await Promise.all([
+  const [clients, quotes, pos, tasks, myTasks, samples, reports, invoices, instruments, cca, vpos] = await Promise.all([
     supabase.from("clients").select("id", { count: "exact", head: true }).eq("is_active", true),
     supabase.from("quotations").select("total,status").in("status", ["draft", "sent"]),
     supabase.from("purchase_orders").select("id", { count: "exact", head: true }).eq("status", "active"),
@@ -25,6 +26,7 @@ export default async function Dashboard() {
     supabase.from("invoices").select("balance,due_date").in("status", ["issued", "partially_paid"]),
     supabase.from("instruments").select("id,name,calibration_due").eq("is_active", true).lte("calibration_due", in30).order("calibration_due"),
     supabase.from("clients").select("id,name,cca_valid_upto").eq("is_active", true).lte("cca_valid_upto", in60).order("cca_valid_upto"),
+    supabase.from("vendor_pos").select("id,po_no,delivery_date,balance,status,vendors(name)").not("status", "in", "(draft,cancelled,closed)"),
   ]);
 
   const sampleCount = (s: string) => (samples.data ?? []).filter((r) => r.status === s).length;
@@ -36,6 +38,9 @@ export default async function Dashboard() {
     const k = days <= 0 ? "Not due" : days <= 30 ? "0–30 days" : days <= 60 ? "31–60 days" : days <= 90 ? "61–90 days" : "90+ days";
     buckets[k] += Number(r.balance);
   });
+  const vp = (vpos.data ?? []) as any[];
+  const payable = vp.reduce((a, r) => a + Number(r.balance), 0);
+  const awaiting = vp.filter((r) => ["sent", "acknowledged", "partially_received"].includes(r.status));
   const openQuoteValue = (quotes.data ?? []).reduce((a, r) => a + Number(r.total), 0);
 
   return (
@@ -116,6 +121,19 @@ export default async function Dashboard() {
               ))}
             </ul>
           )}
+        </Card>
+
+        <Card title="Purchasing" actions={<Link className="text-xs text-teal-700" href="/vendor-pos">View all</Link>}>
+          <div className="mb-3 grid grid-cols-2 gap-3">
+            <Stat label="Awaiting delivery" value={awaiting.length} tone="amber" href="/vendor-pos?status=open" />
+            <Stat label="Payable to vendors" value={inr(payable)} tone={payable ? "red" : "teal"} href="/vendor-pos" />
+          </div>
+          <ul className="space-y-1 text-sm">
+            {awaiting.slice(0, 5).map((r) => (
+              <li key={r.id} className="flex justify-between"><Link href={`/vendor-pos/${r.id}`} className="text-teal-800 hover:underline">{r.po_no}</Link>
+                <span className={r.delivery_date && r.delivery_date < today ? "text-red-600" : "text-slate-500"}>{r.vendors?.name} · {fmtDate(r.delivery_date)}</span></li>
+            ))}
+          </ul>
         </Card>
 
         <Card title="Workflow">

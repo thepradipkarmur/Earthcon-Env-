@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActionForm, SubmitButton } from "@/components/action-form";
+import { ComboSelect } from "@/components/combo-select";
 import { Badge, Button, Card, Field, Input, Notice, PageHeader, Select, Table, Td } from "@/components/ui";
 import { can, getProfile } from "@/lib/auth";
 import { MATRIX_LABELS } from "@/lib/constants";
@@ -62,7 +63,7 @@ async function Parameters(supabase: any, matrix: string, edit: boolean) {
                     <span className="font-mono text-xs">{p.code}</span>
                     <Input name="name" defaultValue={p.name} disabled={!edit} />
                     <Input name="unit" defaultValue={p.unit ?? ""} disabled={!edit} />
-                    <Select name="method_id" defaultValue={p.method_id ?? ""} options={mOpts} placeholder="—" disabled={!edit} />
+                    <ComboSelect name="method_id" defaultValue={p.method_id ?? ""} options={mOpts} kind="method" placeholder="—" disabled={!edit} />
                     <Input name="default_rate" type="number" step="any" defaultValue={p.default_rate} disabled={!edit} />
                     <Input name="decimals" type="number" defaultValue={p.decimals} disabled={!edit} />
                     <input type="checkbox" name="is_nabl" defaultChecked={p.is_nabl} disabled={!edit} />
@@ -82,7 +83,7 @@ async function Parameters(supabase: any, matrix: string, edit: boolean) {
             <Field label="Code"><Input name="code" required placeholder="W-XYZ" /></Field>
             <Field label="Name" className="md:col-span-2"><Input name="name" required /></Field>
             <Field label="Unit"><Input name="unit" /></Field>
-            <Field label="Method"><Select name="method_id" options={mOpts} placeholder="—" /></Field>
+            <Field label="Method"><ComboSelect name="method_id" options={mOpts} kind="method" placeholder="—" /></Field>
             <Field label="Rate ₹"><Input name="default_rate" type="number" step="any" /></Field>
             <div className="md:col-span-6 text-right"><SubmitButton>Add</SubmitButton></div>
           </ActionForm>

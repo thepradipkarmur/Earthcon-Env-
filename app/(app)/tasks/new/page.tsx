@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Card, Field, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { getClientOptions, getStaffOptions } from "@/lib/data";
@@ -25,7 +26,7 @@ export default async function NewTask({ searchParams }: { searchParams: Promise<
           <div className="grid gap-4 md:grid-cols-3">
             <Field label="Task type"><Select name="task_type" defaultValue="sampling" options={[{ value: "sampling", label: "Sampling / monitoring" }, { value: "analysis", label: "Laboratory analysis" }, { value: "report", label: "Report preparation" }, { value: "site_visit", label: "Site visit / audit" }, { value: "other", label: "Other" }]} /></Field>
             <Field label="Title" required className="md:col-span-2"><Input name="title" required placeholder="e.g. Monthly ETP outlet sampling" /></Field>
-            <Field label="Client"><Select name="client_id" defaultValue={po?.client_id ?? ""} options={clients} placeholder="—" /></Field>
+            <Field label="Client" hint={<Link href="/clients/new" className="text-teal-700 hover:underline">+ New client</Link>}><Select name="client_id" defaultValue={po?.client_id ?? ""} options={clients} placeholder="—" /></Field>
             <Field label="Site / Plant"><Select name="site_id" options={(sites.data as any[] ?? []).filter((s) => !po || s.client_id === po.client_id).map((s) => ({ value: s.id, label: `${s.clients?.name} – ${s.name}` }))} placeholder="—" /></Field>
             <Field label="Purchase order"><Select name="po_id" defaultValue={po?.id ?? ""} options={(pos.data as any[] ?? []).map((p) => ({ value: p.id, label: `${p.po_number} · ${p.clients?.name}` }))} placeholder="—" /></Field>
             <Field label="Sample type"><Select name="sample_type_id" options={(types.data ?? []).map((t) => ({ value: t.id, label: t.name }))} placeholder="—" /></Field>

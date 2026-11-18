@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ActionForm, SubmitButton } from "@/components/action-form";
 import { Card, Field, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { getClientOptions } from "@/lib/data";
@@ -20,7 +21,7 @@ export default async function NewPO({ searchParams }: { searchParams: Promise<{ 
       <ActionForm action={savePO}>
         <Card>
           <div className="grid gap-4 md:grid-cols-3">
-            <Field label="Client" required className="md:col-span-2"><Select name="client_id" defaultValue={q?.client_id ?? sp.client ?? ""} options={clients} placeholder="Select…" required /></Field>
+            <Field label="Client" required className="md:col-span-2" hint={<Link href="/clients/new" className="text-teal-700 hover:underline">+ New client</Link>}><Select name="client_id" defaultValue={q?.client_id ?? sp.client ?? ""} options={clients} placeholder="Select…" required /></Field>
             <Field label="Against quotation"><Select name="quotation_id" defaultValue={q?.id ?? ""} options={(quotes ?? []).map((x) => ({ value: x.id, label: `${x.quote_no} · ${x.clients?.name} · ${inr(x.total)}` }))} placeholder="—" /></Field>
             <Field label="Client PO number" required><Input name="po_number" required /></Field>
             <Field label="PO date"><Input type="date" name="po_date" defaultValue={isoDate()} /></Field>

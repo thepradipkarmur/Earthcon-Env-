@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm, SubmitButton } from "@/components/action-form";
-import { Card, DL, Field, Input, LinkButton, PageHeader, StatusBadge, Table, Td } from "@/components/ui";
+import { Button, Card, DL, Field, Input, LinkButton, PageHeader, StatusBadge, Table, Td } from "@/components/ui";
 import { can, getProfile } from "@/lib/auth";
 import { fmtDate, inr } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { addContact, addSite, deleteContact } from "../actions";
+import { registerClientAsVendor } from "../../vendors/actions";
 
 export default async function ClientDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,13 +14,14 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { data: c } = await supabase.from("clients").select("*").eq("id", id).single();
   if (!c) notFound();
-  const [contacts, sites, quotes, pos, samples, invoices] = await Promise.all([
+  const [contacts, sites, quotes, pos, samples, invoices, vendor] = await Promise.all([
     supabase.from("client_contacts").select("*").eq("client_id", id).order("is_primary", { ascending: false }),
     supabase.from("client_sites").select("*").eq("client_id", id).order("name"),
     supabase.from("quotations").select("id,quote_no,quote_date,total,status").eq("client_id", id).order("created_at", { ascending: false }).limit(10),
     supabase.from("purchase_orders").select("id,po_number,po_date,po_value,status").eq("client_id", id).order("po_date", { ascending: false }).limit(10),
     supabase.from("samples").select("id,sample_no,sampling_point,received_at,status,sample_types(name)").eq("client_id", id).order("created_at", { ascending: false }).limit(10),
     supabase.from("invoices").select("id,invoice_no,invoice_date,total,balance,status").eq("client_id", id).order("invoice_date", { ascending: false }).limit(10),
+    supabase.from("vendors").select("id,vendor_code").eq("client_id", id).maybeSingle(),
   ]);
   const editable = can(profile, "accounts", "tech_manager");
 
@@ -28,6 +30,8 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
       <PageHeader title={c.name} subtitle={`${c.client_code} · ${c.industry_sector ?? "Sector not set"}`} step={1}
         actions={<>
           {editable ? <LinkButton href={`/clients/${id}/edit`} variant="secondary">Edit</LinkButton> : null}
+          {vendor.data ? <LinkButton href={`/vendors/${vendor.data.id}`} variant="secondary">Also a vendor ({vendor.data.vendor_code})</LinkButton>
+            : editable ? <form action={registerClientAsVendor}><input type="hidden" name="client_id" value={id} /><Button variant="secondary">Register as vendor</Button></form> : null}
           {can(profile, "accounts") ? <LinkButton href={`/quotations/new?client=${id}`} icon="plus">New quotation</LinkButton> : null}
         </>} />
 

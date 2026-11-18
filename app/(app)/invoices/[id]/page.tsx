@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ComboSelect } from "@/components/combo-select";
 import { ActionForm, SubmitButton } from "@/components/action-form";
-import { Button, Card, DL, Field, Input, LinkButton, PageHeader, Select, StatusBadge, Table, Td } from "@/components/ui";
+import { Button, Card, DL, Field, Input, LinkButton, PageHeader, StatusBadge, Table, Td } from "@/components/ui";
 import { can, getProfile } from "@/lib/auth";
 import { getLookups } from "@/lib/data";
 import { amountInWords, fmtDate, inr, isoDate } from "@/lib/format";
@@ -65,7 +66,7 @@ export default async function InvoiceView({ params }: { params: Promise<{ id: st
               <Field label="Date"><Input type="date" name="payment_date" defaultValue={isoDate()} /></Field>
               <Field label="Amount received (₹)"><Input type="number" step="any" name="amount" defaultValue={Number(inv.balance)} /></Field>
               <Field label="TDS deducted (₹)" hint="Typically 2% u/s 194J (technical services) — confirm with your CA"><Input type="number" step="any" name="tds_amount" defaultValue={0} /></Field>
-              <Field label="Mode"><Select name="mode" options={lookups.payment_mode} placeholder="—" /></Field>
+              <Field label="Mode"><ComboSelect name="mode" options={lookups.payment_mode} category="payment_mode" placeholder="—" /></Field>
               <Field label="UTR / Cheque no." className="sm:col-span-2"><Input name="reference" /></Field>
               <div className="sm:col-span-2 text-right"><SubmitButton>Record payment</SubmitButton></div>
             </ActionForm>

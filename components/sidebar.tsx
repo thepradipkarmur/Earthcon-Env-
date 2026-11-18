@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ADMIN_NAV, NAV } from "@/lib/constants";
+import { ADMIN_NAV, NAV, PURCHASE_NAV } from "@/lib/constants";
 import { Icon } from "./icons";
 import { Logo } from "./logo";
 
@@ -28,7 +28,10 @@ export function Sidebar({ name, roleLabel, isAdmin, signOut }: { name: string; r
       </div>
       <aside className={`${open ? "block" : "hidden"} fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto bg-gradient-to-b from-teal-900 to-emerald-950 p-4 lg:sticky lg:top-0 lg:block lg:h-screen`}>
         <div className="mb-6 hidden lg:block"><Logo /></div>
+        <div className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-teal-300/60">Sales &amp; Lab</div>
         <nav className="space-y-0.5">{NAV.map(link)}</nav>
+        <div className="mb-1 mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-teal-300/60">Purchasing</div>
+        <nav className="space-y-0.5">{PURCHASE_NAV.map(link)}</nav>
         {isAdmin ? (
           <>
             <div className="mb-1 mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-teal-300/60">Administration</div>

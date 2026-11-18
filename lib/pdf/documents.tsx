@@ -203,3 +203,45 @@ export function InvoicePdf({ inv, items, settings }: { inv: any; items: any[]; s
     </Document>
   );
 }
+
+export function VendorPoPdf({ po, items, settings }: { po: any; items: any[]; settings: any }) {
+  const v = po.vendors ?? {};
+  return (
+    <Document title={po.po_no}>
+      <Page size="A4" style={s.page}>
+        {po.status === "draft" ? <Text style={s.watermark} fixed>DRAFT</Text> : null}
+        {po.status === "cancelled" ? <Text style={[s.watermark, { color: "#fecaca" }]} fixed>CANCELLED</Text> : null}
+        <Header settings={settings} />
+        <Text style={s.title}>PURCHASE ORDER</Text>
+        <View style={[s.row, { gap: 8 }]}>
+          <View style={[s.box, { flex: 1 }]}>
+            <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 2 }}>To (Vendor)</Text>
+            <Text style={{ fontFamily: "Helvetica-Bold" }}>{v.name}</Text>
+            <Text>{[v.address, v.city, v.district, v.state, v.pincode].filter(Boolean).join(", ")}</Text>
+            <Text>GSTIN: {v.gstin ?? "—"}</Text>
+            {v.contact_name ? <Text style={{ marginTop: 3 }}>Kind Attn: {v.contact_name}{v.phone ? ` · ${v.phone}` : ""}</Text> : null}
+          </View>
+          <View style={[s.box, { width: 220 }]}>
+            <KV k="PO no." v={po.po_no} /><KV k="PO date" v={fmtDate(po.po_date)} /><KV k="Delivery by" v={fmtDate(po.delivery_date)} />
+            <KV k="Your quotation" v={po.vendor_quotations ? (po.vendor_quotations.vendor_ref ?? po.vendor_quotations.vq_no) : null} />
+            <KV k="Payment terms" v={po.payment_terms} />
+          </View>
+        </View>
+        {po.delivery_address ? <Text style={{ marginBottom: 8 }}><Text style={{ fontFamily: "Helvetica-Bold" }}>Deliver to: </Text>{po.delivery_address}</Text> : null}
+        <Cols cols={[0.4, 5, 1, 0.9, 1.3, 1.5]} head={["#", "Item / description", "Unit", "Qty", "Rate", "Amount"]}
+          rows={items.map((i) => [i.line_no, i.description, i.unit ?? "", Number(i.quantity), rs(i.rate), rs(i.amount)])} />
+        <View style={{ alignSelf: "flex-end", width: 240, marginTop: 6 }}>
+          <KV k="Subtotal" v={rs(po.subtotal)} />
+          {Number(po.discount_amount) ? <KV k="Discount" v={`- ${rs(po.discount_amount)}`} /> : null}
+          {po.is_interstate ? <KV k={`IGST @ ${Number(po.gst_pct)}%`} v={rs(po.igst)} /> : (<>
+            <KV k={`CGST @ ${Number(po.gst_pct) / 2}%`} v={rs(po.cgst)} /><KV k={`SGST @ ${Number(po.gst_pct) / 2}%`} v={rs(po.sgst)} /></>)}
+          <View style={[s.kv, { borderTopWidth: 1, borderColor: C.line, paddingTop: 2 }]}><Text style={[s.k, { fontFamily: "Helvetica-Bold", color: C.dark }]}>PO total</Text><Text style={{ fontFamily: "Helvetica-Bold" }}>{rs(po.total)}</Text></View>
+        </View>
+        <Text style={{ fontStyle: "italic", marginTop: 4 }}>{amountInWords(Number(po.total))}</Text>
+        {po.terms ? (<View style={{ marginTop: 12 }} wrap={false}><Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 2 }}>Terms &amp; conditions</Text><Text>{po.terms}</Text></View>) : null}
+        <View style={{ marginTop: 30, alignSelf: "flex-end", alignItems: "center" }} wrap={false}><Text>For {settings?.lab_name ?? "Earthcon Lab"}</Text><Text style={{ marginTop: 28 }}>Authorised signatory</Text></View>
+        <Footer text="This is a computer-generated purchase order." />
+      </Page>
+    </Document>
+  );
+}

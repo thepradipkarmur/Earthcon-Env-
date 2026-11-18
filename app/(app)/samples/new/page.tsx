@@ -12,7 +12,7 @@ export default async function NewSample({ searchParams }: { searchParams: Promis
   const supabase = await createClient();
   const [clients, staff, lookups, sites, pos, sampleTypes, standards, limits, params, task, qItems] = await Promise.all([
     getClientOptions(), getStaffOptions(),
-    getLookups("container", "preservation", "sample_condition", "weather", "stack_source", "fuel", "noise_zone"),
+    getLookups("container", "preservation", "sample_condition", "weather", "stack_source", "fuel", "noise_zone", "water_sample_nature"),
     supabase.from("client_sites").select("id,name,client_id"),
     supabase.from("purchase_orders").select("id,po_number,client_id,quotation_id").eq("status", "active"),
     supabase.from("sample_types").select("id,name,code,matrix").eq("is_active", true).order("sort_order"),
