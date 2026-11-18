@@ -28,7 +28,7 @@ export function SampleForm(p: {
     const fromStd = p.limits.filter((l) => l.standard_id === nextStd).map((l) => l.parameter_id);
     const fromPo = p.quoteParams[`${nextPo}:${nextSt}`] ?? [];
     const allowed = new Set(p.params.filter((x) => x.matrix === p.sampleTypes.find((s) => s.id === nextSt)?.matrix).map((x) => x.id));
-    setPicked(new Set([...fromPo, ...fromStd].filter((id) => allowed.has(id))));
+    setPicked(new Set((fromPo.length ? fromPo : fromStd).filter((id) => allowed.has(id))));
   }
   const stdOptions = p.standards.filter((s) => s.matrix === matrix && (!s.client_id || s.client_id === clientId)).map((s) => ({ value: s.id, label: s.name }));
 

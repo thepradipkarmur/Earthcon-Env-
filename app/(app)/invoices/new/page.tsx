@@ -19,7 +19,7 @@ export default async function NewInvoice({ searchParams }: { searchParams: Promi
     supabase.from("purchase_orders").select("id,po_number,po_value,client_id,quotation_id").neq("status", "cancelled"),
     supabase.from("samples").select("id,sample_no,client_id,po_id,sampling_point,sample_type_id,sample_types(name),sample_tests(parameter_id)").in("status", ["tested", "reported"]),
     supabase.from("invoice_items").select("sample_id,invoices!inner(status)").not("sample_id", "is", null).neq("invoices.status", "cancelled"),
-    supabase.from("quotation_items").select("quotation_id,sample_type_id,parameter_id,description,quantity,rate").order("line_no"),
+    supabase.from("quotation_items").select("quotation_id,sample_type_id,parameter_id,description,quantity,rate,quotations(discount_pct)").order("line_no"),
     supabase.from("parameters").select("id,default_rate"),
     supabase.from("app_settings").select("default_gst_pct,state_name").single(),
   ]);

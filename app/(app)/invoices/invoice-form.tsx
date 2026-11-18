@@ -47,7 +47,13 @@ export function InvoiceForm({ clients, pos, samples, quoteLines, states, default
         <Card title="Add lines from">
           <div className="flex flex-wrap gap-2">
             {po?.quotation_id && quoteLines[po.quotation_id] ? (
-              <Button type="button" variant="secondary" onClick={() => setLines([...lines, ...quoteLines[po.quotation_id].map((q: any) => ({ key: k++, description: q.description, sac: "998346", sample_id: null, quantity: Number(q.quantity), rate: Number(q.rate) }))])}>
+              <Button type="button" variant="secondary" onClick={() => {
+                const ql = quoteLines[po.quotation_id];
+                const pct = Number(ql[0]?.quotations?.discount_pct ?? 0);
+                const added = ql.reduce((a: number, q: any) => a + Number(q.quantity) * Number(q.rate), 0);
+                if (pct) setDisc(Math.round((disc + (added * pct) / 100) * 100) / 100);
+                setLines([...lines, ...ql.map((q: any) => ({ key: k++, description: q.description, sac: "998346", sample_id: null, quantity: Number(q.quantity), rate: Number(q.rate) }))]);
+              }}>
                 Quotation lines ({quoteLines[po.quotation_id].length})
               </Button>
             ) : null}
